@@ -3,6 +3,7 @@ const ITEM_TEMPLATE = document.getElementById("itemTemplate");
 const ADD_BUTTON = document.getElementById("add");
 const REMOVE_BUTTON = document.getElementById("remove");
 
+
 let items = getItems();
 
 function getItems() {
@@ -82,3 +83,6 @@ REMOVE_BUTTON.addEventListener("click", () => {
 });
 
 refreshList();
+
+
+module.exports = { addItem };

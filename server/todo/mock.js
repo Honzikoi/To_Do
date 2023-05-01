@@ -1,0 +1,103 @@
+const ITEMS_CONTAINER = {
+    innerHTML: '',
+  };
+  const ITEM_TEMPLATE = {
+    content: {
+      cloneNode: jest.fn().mockReturnValue({
+        querySelector: jest.fn().mockImplementation((selector) => {
+          if (selector === '.item-description') {
+            return { value: '' };
+          } else if (selector === '.item-completed') {
+            return { checked: false };
+          }
+        }),
+        appendChild: jest.fn(),
+      }),
+    },
+  };
+  const ADD_BUTTON = {
+    addEventListener: jest.fn(),
+  };
+  const REMOVE_BUTTON = {
+    addEventListener: jest.fn(),
+  };
+  
+  let items = getItems();
+  
+  function getItems() {
+    const value = localStorage.getItem("todo-test") || "[]";
+  
+    return JSON.parse(value);
+  }
+  
+  function setItems(items) {
+    const itemsJson = JSON.stringify(items);
+  
+    localStorage.setItem("todo-test", itemsJson);
+  }
+  
+  function addItem() {
+    items.unshift({
+      description: "",
+      completed: false,
+    });
+  
+    setItems(items);
+    refreshList();
+  }
+  
+  function updateItem(item, key, value) {
+    item[key] = value;
+  
+    setItems(items);
+    refreshList();
+  }
+  
+  function refreshList() {
+    //sort items
+    items.sort((a, b) => {
+      if (a.completed) {
+        return 1;
+      }
+      if (b.completed) {
+        return -1;
+      }
+  
+      return a.description < b.description ? -1 : 1;
+    });
+  
+    ITEMS_CONTAINER.innerHTML = "";
+  
+    for (const item of items) {
+      const itemElement = ITEM_TEMPLATE.content.cloneNode(true);
+      const descriptionInput = itemElement.querySelector(".item-description");
+      const completedInput = itemElement.querySelector(".item-completed");
+  
+      descriptionInput.value = item.description;
+      completedInput.checked = item.completed;
+  
+      descriptionInput.addEventListener("change", () => {
+        updateItem(item, "description", descriptionInput.value);
+      });
+  
+      completedInput.addEventListener("change", () => {
+        updateItem(item, "completed", completedInput.checked);
+      });
+  
+      ITEMS_CONTAINER.appendChild(itemElement);
+    }
+  }
+  
+  function removeList() {
+    localStorage.removeItem("todo-test");
+  }
+  
+  ADD_BUTTON.addEventListener("click", () => {
+    addItem();
+  });
+  
+  REMOVE_BUTTON.addEventListener("click", () => {
+    removeList();
+  });
+  
+  refreshList();
